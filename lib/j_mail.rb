@@ -198,9 +198,11 @@ class JMail
       #TODO: break this out into a separate method.
       if (attachment.content_type.start_with?("image/"))
         attachment_filename = attachment.filename
-        images_dir = @blog.images_dir_under_jekyll + ("/%02d/%02d/%02d" % [keyvals[:time].year, keyvals[:time].month, keyvals[:time].day])
+        images_dir = @blog.images_dir_under_jekyll + ("/%02d-%02d-%02d" % [keyvals[:time].year, keyvals[:time].month, keyvals[:time].day])
         local_images_dir = "#{@blog.jekyll_dir}/#{images_dir}"
-        FileUtils.mkdir_p(local_images_dir)
+        unless Dir.exist?(local_images_dir )
+          FileUtils.mkdir_p(local_images_dir)
+        end
         puts "local_images_dir: #{local_images_dir}"
         images_needing_replacement[attachment_filename] = "/#{images_dir}/#{attachment_filename}"
         puts "image url: #{images_needing_replacement[attachment_filename]}"
