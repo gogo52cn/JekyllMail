@@ -121,6 +121,7 @@ class JMail
       html_text += "<source id=\"mp4\" src=\"#{path}#t=0.5\" type=\"video/mp4\">"
       html_text += "<p>Your user agent does not support the HTML5 Video element.</p></video>"
     end
+    @logger.log(html_text)
     html_text
   end
 
