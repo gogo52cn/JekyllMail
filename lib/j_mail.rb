@@ -35,9 +35,10 @@ class JMail
     keyvals = update_and_infer_keyvals(@blog, keyvals)
     body = ""
     images_needing_replacement = {}
+    videos = {}
     if mail.multipart?
       #vvv updates images_needing_replacement
-      body = process_multipart_mail(mail, body, images_needing_replacement, keyvals)
+      body = process_multipart_mail(mail, body, images_needing_replacement, videos, keyvals)
     else
       #Just grab the body no matter what it is
       body = mail.body.decoded
@@ -51,7 +52,8 @@ class JMail
     body = cleanup_html_and_replace_images(
       body,
       keyvals[:markup],
-      images_needing_replacement
+      images_needing_replacement,
+      videos
     )
 
     @logger.log("XXX calling write_to_disk")
@@ -77,10 +79,11 @@ class JMail
     message
   end
 
-  def cleanup_html_and_replace_images(body, markup, images_needing_replacement)
+  def cleanup_html_and_replace_images(body, markup, images_needing_replacement, videos)
     body = cleanup_html(body, markup)
     body = replace_all_images(
       images_needing_replacement,
+      videos,
       body,
       markup
     )
@@ -92,12 +95,13 @@ class JMail
     Nokogiri::HTML::DocumentFragment.parse(body.strip).to_html
   end
 
-  def replace_all_images(images_needing_replacement, body, markup)
+  def replace_all_images(images_needing_replacement, videos, body, markup)
     images_needing_replacement.each do |filename, path|
       body = replace_images(body, markup, filename, path)
 ## add image inserts here. 
     end
     body = "#{body}\n" + image_gallery_text(images_needing_replacement)
+    body = "#{body}\n" + video_text(videos)    
     body
   end
 
@@ -107,6 +111,16 @@ class JMail
       html_text += "<img src=\"#{path}\"/>"
     end
     html_text += "</div>"
+    html_text
+  end
+
+  def video_text videos
+    html_text = ""
+    videos.each do |filename, path|
+      html_text += "<video id=\"video\" controls=\"\" preload=\"none\" preload=\"metadata\" width=\"100%\">"
+      html_text += "<source id=\"mp4\" src=\"#{path}#t=0.5\" type=\"video/mp4\">"
+      html_text += "<p>Your user agent does not support the HTML5 Video element.</p></video>"
+    end
     html_text
   end
 
@@ -180,7 +194,7 @@ class JMail
   end
 
   # TODO: refactor me into multiple methods
-  def process_multipart_mail(mail, body, images_needing_replacement, keyvals)
+  def process_multipart_mail(mail, body, images_needing_replacement, videos, keyvals)
     html_part = -1
     txt_part = -1
 
@@ -219,6 +233,29 @@ class JMail
           $stderr.puts "Unable to save data for #{attachment_filename} because #{e.message}"
         end
       end
+      if (attachment.content_type.start_with?("video/"))
+        attachment_filename = attachment.filename
+        images_dir = @blog.images_dir_under_jekyll + ("/%02d-%02d-%02d" % [keyvals[:time].year, keyvals[:time].month, keyvals[:time].day])
+        local_images_dir = "#{@blog.jekyll_dir}/#{images_dir}"
+        unless Dir.exist?(local_images_dir )
+          FileUtils.mkdir_p(local_images_dir)
+        end
+        puts "local_images_dir: #{local_images_dir}"
+        videos[attachment_filename] = "/#{images_dir}/#{attachment_filename}"
+        puts "video url: #{images_needing_replacement[attachment_filename]}"
+        begin
+          local_filename = "#{@blog.jekyll_dir}/#{images_dir}/#{attachment_filename}"
+          @logger.log("saving video to #{local_filename}")
+          unless File.writable?(local_images_dir)
+            $stderr.puts("ERROR: #{local_images_dir} is unwritable. Exiting.")
+          end
+          File.open(local_filename, "w+b", 0644) { |f| f.write attachment.body.decoded }
+          # @files_to_commit << "#{images_dir}/#{attachment_filename}"
+          @files_to_commit << local_filename
+        rescue Exception => e
+          $stderr.puts "Unable to save data for #{attachment_filename} because #{e.message}"
+        end
+      end      
     end
 
     #If the markup isn't html, try and use the
