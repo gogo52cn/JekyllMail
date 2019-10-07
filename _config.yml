@@ -1,19 +1,19 @@
 ---
 # log_file is optional. Simply leave it undefined to not log to a file
-log_file: /Users/masukomi/workspace/temp/jekyllmail.log
+log_file: /root/yublog_mail/jekyllmail.log
 ## Setting debug to true places the script
 ## in a debug state, which results in some verbose
 ## output and overrides delete_after_run
 debug: true
 blogs:
-- name: my blog name
+- name: Love and Life
   active: true
   # set active: false to temporarily pause the ingestion
   # of emails for this blog without having to disable
   # the cron job
   markup: markdown
-  jekyll_blog_dir: /Users/masukomi/workspace/jekyllmail_test_site
-  images_dir_under_jekyll: assets/img
+  jekyll_blog_dir: /root/yublog_local_edit
+  images_dir_under_jekyll: images
   posts_dir_under_jekyll: _posts
   # SEE https://jekyllrb.com/docs/static-files/
   # for details on how to configure where your static files live
@@ -22,22 +22,22 @@ blogs:
   # so the default value for images_dir_under_site_url
   # would be /assets/img because the web page would
   # link to an image at https://<your_site_url>/assets/img/foo.jpg
-  images_dir_under_site_url: /assets/img
+  images_dir_under_site_url: /images
 
   origin_repo_branch: master
 
-  local_repo: /Users/masukomi/workspace/jekyllmail_test_site
+  local_repo: /root/yublog_local_edit
     # typically this is a local repo that JekyllMail updates
     # and pushes to an origin repo, but it can just be a local
     # directory you want JekyllMail to store your files under.
-  origin_repo: /Users/masukomi/workspace/jekyllmail_test_site
+  origin_repo: /root/yublog.git
     # origin_repo could also be me@example.com:path/to/blog.git
     # orign_repo_branch defaults to master
-  pop_server: mail.example.com
-  pop_user: jekyllmail@example.com
-  pop_password: a_really_good_password_here
-  secret: jekyllmail
+  pop_server: pop.exmail.qq.com
+  pop_user: yublog@sourcingspectrum.com
+  pop_password: 
+  secret: yublog
   markup: markdown
-  site_url: http://blog.example.com
+  site_url: http://yu.sourcingspectrum.com
   commit_after_save: true
   delete_after_run: true

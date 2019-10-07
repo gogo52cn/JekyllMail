@@ -11,6 +11,10 @@ class JMail
 
   #TODO: OMG THIS IS WAY TOO LONG
   def process_mail(mail)
+    blog_int = new Blog
+    Dir.chdir(blog_int.jekyll_dir)
+    result = `git pull origin master`
+    @logger.log(result)
     @files_to_commit = []
     keyvals = {
       :tags      => "", # a YAML array
