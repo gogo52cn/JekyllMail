@@ -104,7 +104,7 @@ class JMail
   def image_gallery_text images
     html_text = "<div class=\"gallery\" data-columns=\"2\"> "
     images.each do |filename, path|
-      html_text += "<img src=\"#{path}\""
+      html_text += "<img src=\"#{path}\"/>"
     end
     html_text += "</div>"
     html_text
