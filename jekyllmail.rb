@@ -73,7 +73,8 @@ blogs.each do | blog_data |
 			@@logger.log("mail was invalid:\n#{mail.inspect}")
 		end
 	end
-	Mail.delete_all() unless @@globals[:debug] == true or  @@globals[:delete_after_run] == false
+	#Mail.delete_all() unless @@globals[:debug] == true or  @@globals[:delete_after_run] == false
+	Mail.delete_all() unless @@globals[:delete_after_run] == false
 		# when debugging it's much easier to just leave the emails there and re-use them
 
 end
