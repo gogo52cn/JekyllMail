@@ -11,8 +11,7 @@ class JMail
 
   #TODO: OMG THIS IS WAY TOO LONG
   def process_mail(mail)
-    blog_int = Blog.new
-    Dir.chdir(blog_int.jekyll_dir)
+    Dir.chdir(@blog.jekyll_dir)
     result = `git pull origin master`
     @logger.log(result)
     @files_to_commit = []
