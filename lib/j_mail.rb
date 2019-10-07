@@ -95,9 +95,21 @@ class JMail
   def replace_all_images(images_needing_replacement, body, markup)
     images_needing_replacement.each do |filename, path|
       body = replace_images(body, markup, filename, path)
+## add image inserts here. 
     end
+    body = "#{body}\n" + image_gallery_text(images_needing_replacement)
     body
   end
+
+  def image_gallery_text images
+    html_text = "<div class=\"gallery\" data-columns=\"2\"> "
+    images.each do |filename, path|
+      html_text += "<img src=\"#{path}\""
+    end
+    html_text += "</div>"
+    html_text
+  end
+
 
   def replace_images(body, markup, filename, path)
     case markup
